@@ -6,18 +6,18 @@ dataset:
   dimension: 128
   
 clustering:
-  n_clusters: 256
+  n_clusters: 1000
   max_iter: 100
   n_init: 10
   
 indexing:
-  p_index: 10
+  p_index: 20
   k1: 30
   m_max: 16
 
 query:
-  n1: 5
-  n2: 10
+  n1: 6
+  n2: 2
   k2: 100
   K: 10
 
