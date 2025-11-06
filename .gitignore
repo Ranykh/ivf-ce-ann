@@ -29,3 +29,6 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+
+# Local datasets
+data/raw/
