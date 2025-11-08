@@ -16,6 +16,8 @@ class EvaluationResult:
     recalls: Mapping[int, float]
     query_time_ms: float
     qps: float
+    latency_p50_ms: float = 0.0
+    latency_p95_ms: float = 0.0
 
 
 class Evaluator:
@@ -39,8 +41,11 @@ class Evaluator:
         predictions = np.full((queries.shape[0], max_k), -1, dtype=np.int32)
 
         start = perf_counter()
+        per_query_latencies: list[float] = []
         for idx, query in enumerate(queries):
+            q_start = perf_counter()
             ids, _ = searcher.search(query, max_k)
+            per_query_latencies.append((perf_counter() - q_start) * 1e3)
             fill = min(ids.shape[0], max_k)
             predictions[idx, :fill] = ids[:fill]
         elapsed = perf_counter() - start
@@ -48,4 +53,18 @@ class Evaluator:
         recalls = {k: recall_at_k(self.ground_truth, predictions, k) for k in k_values}
         query_time_ms = (elapsed / queries.shape[0]) * 1e3 if queries.size else 0.0
         qps = queries_per_second(queries.shape[0], elapsed) if elapsed > 0 else 0.0
-        return EvaluationResult(recalls=recalls, query_time_ms=query_time_ms, qps=qps)
+        latencies = np.asarray(per_query_latencies, dtype=np.float32)
+        if latencies.size == 0:
+            latency_p50 = 0.0
+            latency_p95 = 0.0
+        else:
+            latency_p50 = float(np.percentile(latencies, 50))
+            latency_p95 = float(np.percentile(latencies, 95))
+
+        return EvaluationResult(
+            recalls=recalls,
+            query_time_ms=query_time_ms,
+            qps=qps,
+            latency_p50_ms=latency_p50,
+            latency_p95_ms=latency_p95,
+        )
