@@ -6,7 +6,7 @@ dataset:
   dimension: 128
   
 clustering:
-  n_clusters: 1000
+  n_clusters: 80
   max_iter: 100
   n_init: 10
   
@@ -16,7 +16,7 @@ indexing:
   m_max: 16
 
 query:
-  n1: 6
+  n1: 4
   n2: 2
   k2: 100
   K: 10
