@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
+
+from src.index.metadata import BuildStats, IndexMetadata
 
 
 class BaseIndex(ABC):
@@ -15,6 +17,8 @@ class BaseIndex(ABC):
     def __init__(self, dimension: int) -> None:
         self.dimension = dimension
         self.is_built = False
+        self.build_stats: Optional[BuildStats] = None
+        self.metadata: Optional[IndexMetadata] = None
 
     @abstractmethod
     def build(self, vectors: np.ndarray) -> None:
