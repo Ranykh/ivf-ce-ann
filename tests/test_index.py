@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.index import IVFIndex, IVFCEIndex, CrossLink
+from src.index import IVFIndex, IVFCEIndex, CrossLink, IndexMetadata
 
 
 def _toy_dataset() -> np.ndarray:
@@ -46,3 +46,41 @@ def test_ivfce_cross_links_are_built():
 
     # Ensure at least one vector has cross-links computed.
     assert any(index.cross_links.values())
+
+
+def test_ivfce_index_persistence_roundtrip(tmp_path):
+    data = _toy_dataset()
+    index = IVFCEIndex(
+        dimension=2,
+        n_clusters=2,
+        k1=3,
+        m_max=2,
+        p_index=2,
+        seed=123,
+        n_init=5,
+        max_iter=50,
+    )
+    index.build(data)
+    index.metadata = IndexMetadata.create(
+        config_name="TEST",
+        dataset_name="toy",
+        dataset_path="data/toy",
+        dataset_size=data.shape[0],
+        n_clusters=2,
+        dimension=2,
+        m_max=2,
+        k1=3,
+        p_index=2,
+        seed=123,
+        build_stats=index.build_stats,
+    )
+
+    path = tmp_path / "ivfce.idx"
+    index.save(path)
+
+    restored = IVFCEIndex.load(path)
+    assert restored.is_built
+    assert restored.metadata is not None
+    assert restored.metadata.config_name == "TEST"
+    assert np.allclose(restored.centroids, index.centroids)
+    assert restored.cross_links.keys() == index.cross_links.keys()
