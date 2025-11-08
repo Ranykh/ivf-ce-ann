@@ -6,7 +6,7 @@ clustering:
   n_clusters: 80
   n_init: 10
   max_iter: 100
-  seed:
+  seed: 123
 indexing:
   m_max: 8
   k1: 15
