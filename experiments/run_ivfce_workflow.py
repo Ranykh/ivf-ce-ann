@@ -145,6 +145,7 @@ def _build_index(args: argparse.Namespace) -> None:
         n_init=clustering_cfg.n_init,
         max_iter=clustering_cfg.max_iter,
         seed=clustering_cfg.seed,
+        progress_logger=logger,
     )
     index.build(base)
 
@@ -169,7 +170,7 @@ def _build_index(args: argparse.Namespace) -> None:
 
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_name = args.output_name or _default_output_name(dataset_cfg["name"], preset.name)
+    output_name = args.output_name or _default_output_name(dataset_cfg.name, preset.name)
     output_path = output_dir / output_name
 
     if output_path.exists() and not args.force:
@@ -256,7 +257,7 @@ def _run_search(args: argparse.Namespace) -> None:
                     n2=n2,
                     k2=k2,
                 )
-                result = evaluator.evaluate(searcher, k_values)
+                result = evaluator.evaluate(searcher, queries_eval, k_values)
                 payload = {
                     "timestamp": datetime.utcnow().isoformat(),
                     "index_path": str(args.index_path),

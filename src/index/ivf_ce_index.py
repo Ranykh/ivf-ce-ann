@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from time import perf_counter
 from typing import Any, Dict, List
 
@@ -24,6 +25,8 @@ class IVFCEIndex(IVFIndex):
         n_init: int = 10,
         max_iter: int = 100,
         seed: int | None = None,
+        progress_log_interval: int = 10_000,
+        progress_logger: logging.Logger | None = None,
     ) -> None:
         super().__init__(
             dimension=dimension,
@@ -36,6 +39,12 @@ class IVFCEIndex(IVFIndex):
         self.m_max = m_max
         self.p_index = p_index
         self.cross_links: Dict[int, List[CrossLink]] = {}
+        if progress_log_interval <= 0:
+            raise ValueError("progress_log_interval must be positive.")
+        self._progress_log_interval = progress_log_interval
+        self._progress_logger = progress_logger or logging.getLogger(
+            "ivfce.cross_links"
+        )
 
     def build(self, vectors: np.ndarray) -> None:
         super().build(vectors)
@@ -54,8 +63,20 @@ class IVFCEIndex(IVFIndex):
             p_index=self.p_index,
         )
         cross_links: Dict[int, List[CrossLink]] = {}
-        for vector_id in range(self.database.shape[0]):
+        total_vectors = self.database.shape[0]
+        next_log = self._progress_log_interval
+        for vector_id in range(total_vectors):
             cross_links[vector_id] = builder.build_for_vector(vector_id)
+            processed = vector_id + 1
+            if processed >= next_log or processed == total_vectors:
+                percent = (processed / total_vectors) * 100 if total_vectors else 100.0
+                self._progress_logger.info(
+                    "Cross-links: processed %d/%d vectors (%.1f%%)",
+                    processed,
+                    total_vectors,
+                    percent,
+                )
+                next_log += self._progress_log_interval
         return cross_links
 
     def _serialize_state(self) -> Dict[str, Any]:
