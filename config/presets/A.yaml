@@ -3,8 +3,8 @@ dataset:
   name: "sift1m"
   path: "data/"
 clustering:
-  n_clusters: 80
-  n_init: 10
+  n_clusters: 1024
+  n_init: 1
   max_iter: 100
   seed: 123
 indexing:
