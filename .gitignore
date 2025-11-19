@@ -32,3 +32,6 @@ dist/
 
 # Local datasets
 data/raw/
+
+# Generated indexes
+results/indexes/
