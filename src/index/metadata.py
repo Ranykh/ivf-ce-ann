@@ -14,13 +14,16 @@ class BuildStats:
     components: Dict[str, float] = field(default_factory=dict)
 
     def add_component(self, name: str, duration_seconds: float) -> None:
+        """Record the duration for a specific build step."""
         self.components[name] = float(duration_seconds)
 
     @property
     def total(self) -> float:
+        """Return the total build time across all components."""
         return float(sum(self.components.values()))
 
     def component(self, name: str) -> Optional[float]:
+        """Fetch the recorded duration for a component, if any."""
         return self.components.get(name)
 
     def as_dict(self) -> Dict[str, float]:
@@ -28,10 +31,12 @@ class BuildStats:
         return dict(self.components)
 
     def to_serializable(self) -> Dict[str, Any]:
+        """Convert the statistics to a JSON-serializable mapping."""
         return {"components": dict(self.components)}
 
     @classmethod
     def from_serializable(cls, payload: Dict[str, Any]) -> "BuildStats":
+        """Reconstruct BuildStats from serialized metadata."""
         components = payload.get("components", {})
         return cls(components={str(k): float(v) for k, v in components.items()})
 
@@ -71,6 +76,7 @@ class IndexMetadata:
         build_stats: BuildStats,
         extra: Optional[Dict[str, Any]] = None,
     ) -> "IndexMetadata":
+        """Factory that fills metadata plus timestamps for a built index."""
         return cls(
             config_name=config_name,
             dataset_name=dataset_name,
@@ -88,6 +94,7 @@ class IndexMetadata:
         )
 
     def to_serializable(self) -> Dict[str, Any]:
+        """Convert metadata into a dictionary suitable for pickling/JSON."""
         return {
             "config_name": self.config_name,
             "dataset_name": self.dataset_name,
@@ -106,6 +113,7 @@ class IndexMetadata:
 
     @classmethod
     def from_serializable(cls, payload: Dict[str, Any]) -> "IndexMetadata":
+        """Restore metadata from a serialized representation."""
         build_stats_payload = payload.get("build_stats", {})
         build_stats = BuildStats.from_serializable(build_stats_payload)
         return cls(

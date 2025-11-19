@@ -26,12 +26,14 @@ def recall_at_k(ground_truth: np.ndarray, predictions: np.ndarray, k: int) -> fl
 
 
 def queries_per_second(num_queries: int, elapsed_seconds: float) -> float:
+    """Return throughput in queries per second given elapsed time."""
     if elapsed_seconds <= 0:
         raise ValueError("elapsed_seconds must be positive")
     return num_queries / elapsed_seconds
 
 
 def mean_distance(distances: np.ndarray) -> float:
+    """Compute the arithmetic mean of a set of distances."""
     if distances.size == 0:
         return float("nan")
     return float(np.mean(distances))

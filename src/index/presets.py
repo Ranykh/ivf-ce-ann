@@ -12,12 +12,14 @@ import yaml
 
 @dataclass(frozen=True)
 class DatasetConfig:
+    """Dataset location/name referenced by a preset."""
     name: str
     path: str
 
 
 @dataclass(frozen=True)
 class ClusteringConfig:
+    """Parameters controlling coarse quantizer training."""
     n_clusters: int
     n_init: int
     max_iter: int
@@ -26,6 +28,7 @@ class ClusteringConfig:
 
 @dataclass(frozen=True)
 class IndexingConfig:
+    """Cross-link construction hyperparameters."""
     m_max: int
     k1: int
     p_index: int
@@ -33,6 +36,7 @@ class IndexingConfig:
 
 @dataclass(frozen=True)
 class SearchConfig:
+    """Query-time sweep specification for a preset."""
     B_values: List[int]
     k2_values: List[int]
     query_seed: int
@@ -41,6 +45,7 @@ class SearchConfig:
 
 @dataclass(frozen=True)
 class IVFCEPreset:
+    """Container bundling dataset, build, and search settings."""
     name: str
     dataset: DatasetConfig
     clustering: ClusteringConfig
@@ -52,18 +57,21 @@ _PRESET_DIR = Path(__file__).resolve().parents[2] / "config" / "presets"
 
 
 def available_preset_names() -> List[str]:
+    """List preset identifiers detected in the presets directory."""
     if not _PRESET_DIR.is_dir():
         return []
     return sorted(path.stem.upper() for path in _PRESET_DIR.glob("*.yaml"))
 
 
 def _ensure_mapping(section: str, data, path: Path) -> dict:
+    """Ensure a preset section decodes to a mapping structure."""
     if not isinstance(data, dict):
         raise ValueError(f"Section '{section}' in preset {path} must be a mapping.")
     return data
 
 
 def _load_dataset(section: dict, path: Path) -> DatasetConfig:
+    """Parse the dataset portion of a preset file."""
     section = _ensure_mapping("dataset", section, path)
     try:
         name = str(section["name"])
@@ -74,6 +82,7 @@ def _load_dataset(section: dict, path: Path) -> DatasetConfig:
 
 
 def _load_clustering(section: dict, path: Path) -> ClusteringConfig:
+    """Parse the clustering parameters from a preset."""
     section = _ensure_mapping("clustering", section, path)
     try:
         n_clusters = int(section["n_clusters"])
@@ -89,6 +98,7 @@ def _load_clustering(section: dict, path: Path) -> ClusteringConfig:
 
 
 def _load_indexing(section: dict, path: Path) -> IndexingConfig:
+    """Parse indexing hyperparameters from a preset."""
     section = _ensure_mapping("indexing", section, path)
     try:
         m_max = int(section["m_max"])
@@ -100,6 +110,7 @@ def _load_indexing(section: dict, path: Path) -> IndexingConfig:
 
 
 def _load_search(section: dict, path: Path) -> SearchConfig:
+    """Parse query-time sweep parameters from a preset."""
     section = _ensure_mapping("search", section, path)
     try:
         b_values = [int(v) for v in section.get("B_values", [])]
@@ -127,6 +138,7 @@ def _load_search(section: dict, path: Path) -> SearchConfig:
 
 @lru_cache(maxsize=None)
 def get_preset(name: str) -> IVFCEPreset:
+    """Load and cache a preset by name."""
     normalized = name.upper()
     path = _PRESET_DIR / f"{normalized}.yaml"
     if not path.is_file():

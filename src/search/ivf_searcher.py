@@ -12,7 +12,10 @@ from src.search.utils import deduplicate_keep_best
 
 
 class IVFSearcher(BaseSearcher):
+    """Searcher that probes a fixed number of IVF clusters per query."""
+
     def __init__(self, index: IVFIndex, *, nprobe: int) -> None:
+        """Store the IVF index reference and number of centroids to probe."""
         if not index.is_built:
             raise ValueError("Index must be built before constructing a searcher.")
         super().__init__(index_dimension=index.dimension)
@@ -20,6 +23,7 @@ class IVFSearcher(BaseSearcher):
         self.nprobe = nprobe
 
     def search(self, query: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
+        """Retrieve the approximate top-k neighbors via IVF scanning."""
         self._validate_query(query)
         if k <= 0:
             raise ValueError("k must be positive")

@@ -13,6 +13,7 @@ def setup_logger(
     level: int = logging.INFO,
     log_file: Optional[str | Path] = None,
 ) -> logging.Logger:
+    """Create or retrieve a configured logger with optional file output."""
     logger = logging.getLogger(name)
     if logger.handlers:
         return logger

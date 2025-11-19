@@ -14,6 +14,8 @@ from src.index.metadata import BuildStats
 
 
 class IVFCEIndex(IVFIndex):
+    """IVF variant that also stores per-vector cross-cluster links."""
+
     def __init__(
         self,
         dimension: int,
@@ -28,6 +30,7 @@ class IVFCEIndex(IVFIndex):
         progress_log_interval: int = 10_000,
         progress_logger: logging.Logger | None = None,
     ) -> None:
+        """Initialize parameters for both IVF and cross-link construction."""
         super().__init__(
             dimension=dimension,
             n_clusters=n_clusters,
@@ -47,6 +50,7 @@ class IVFCEIndex(IVFIndex):
         )
 
     def build(self, vectors: np.ndarray) -> None:
+        """Build the IVF structures and then compute cross-links."""
         super().build(vectors)
         cross_start = perf_counter()
         self.cross_links = self._build_cross_links()
@@ -56,6 +60,7 @@ class IVFCEIndex(IVFIndex):
         self.build_stats.add_component("cross_links", cross_time)
 
     def _build_cross_links(self) -> Dict[int, List[CrossLink]]:
+        """Compute cross-cluster link lists for every database vector."""
         builder = CrossLinkBuilder(
             self,
             k1=self.k1,
@@ -80,6 +85,7 @@ class IVFCEIndex(IVFIndex):
         return cross_links
 
     def _serialize_state(self) -> Dict[str, Any]:
+        """Extend IVF serialization with cross-link configuration/state."""
         state = super()._serialize_state()
         state.update(
             {
@@ -93,6 +99,7 @@ class IVFCEIndex(IVFIndex):
 
     @classmethod
     def _hydrate_from_state(cls, state: Dict[str, Any]) -> "IVFCEIndex":
+        """Rehydrate an IVF-CE index from serialized state."""
         class_name = state.get("class_name")
         if class_name != cls.__name__:
             raise ValueError(

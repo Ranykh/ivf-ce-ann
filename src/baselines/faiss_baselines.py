@@ -15,6 +15,7 @@ except ImportError:  # pragma: no cover
 
 @dataclass
 class FAISSIndexWrapper:
+    """Thin wrapper to hold the constructed FAISS index object."""
     index: "faiss.Index"  # type: ignore[name-defined]
 
 
@@ -28,6 +29,7 @@ class FAISSIVFBaseline:
         nlist: int,
         nprobe: int,
     ) -> None:
+        """Configure the FAISS IVF Flat baseline."""
         if faiss is None:
             raise ImportError("faiss is required for the FAISS baselines.")
 
@@ -37,6 +39,7 @@ class FAISSIVFBaseline:
         self.wrapper: FAISSIndexWrapper | None = None
 
     def build(self, vectors: np.ndarray) -> None:
+        """Train and add vectors to a FAISS IVF Flat index."""
         if vectors.ndim != 2:
             raise ValueError("vectors must be a 2D array")
         if vectors.shape[1] != self.dimension:
@@ -53,6 +56,7 @@ class FAISSIVFBaseline:
         self.wrapper = FAISSIndexWrapper(index=index)
 
     def search(self, query: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
+        """Search the FAISS index for the nearest neighbors of a query."""
         if self.wrapper is None:
             raise RuntimeError("Index has not been built yet.")
         if query.ndim != 1:

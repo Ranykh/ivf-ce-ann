@@ -12,6 +12,7 @@ class BaseSearcher(ABC):
     """Shared interface for ANN searchers."""
 
     def __init__(self, index_dimension: int) -> None:
+        """Record the dimensionality all queries must adhere to."""
         self.dimension = index_dimension
 
     @abstractmethod
@@ -19,6 +20,7 @@ class BaseSearcher(ABC):
         """Return ``k`` nearest vectors for the given query."""
 
     def _validate_query(self, query: np.ndarray) -> None:
+        """Ensure a query is 1D and matches the index dimensionality."""
         if query.ndim != 1:
             raise ValueError("query must be a 1D array")
         if query.shape[0] != self.dimension:

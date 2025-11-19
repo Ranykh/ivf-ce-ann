@@ -12,6 +12,7 @@ from src.index.ivf_index import IVFIndex
 
 @dataclass(frozen=True)
 class CrossLink:
+    """Represents a candidate cluster linked to a given database vector."""
     cluster_id: int
     distance: float
 
@@ -27,6 +28,7 @@ class CrossLinkBuilder:
         m_max: int,
         p_index: int,
     ) -> None:
+        """Initialize the builder with link hyperparameters and source index."""
         if not index.is_built:
             raise ValueError("Index must be built before computing cross-links.")
         if k1 <= 0 or m_max <= 0 or p_index <= 0:
@@ -38,6 +40,7 @@ class CrossLinkBuilder:
         self.p_index = p_index
 
     def build_for_vector(self, vector_id: int) -> List[CrossLink]:
+        """Compute cross-cluster links for a single database vector."""
         vector = self.index.database[vector_id]
         own_cluster = int(self.index.assignments[vector_id])
 

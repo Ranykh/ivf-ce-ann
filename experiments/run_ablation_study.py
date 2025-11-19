@@ -27,6 +27,7 @@ DEFAULT_ABLATIONS = {
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments for the ablation script."""
     parser = argparse.ArgumentParser(description="Run IVF-CE ablation study.")
     parser.add_argument(
         "--config",
@@ -43,6 +44,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def build_index(cfg: Dict[str, Any], database: np.ndarray) -> IVFCEIndex:
+    """Construct an IVF-CE index from configuration and data."""
     clustering_cfg = cfg["clustering"]
     indexing_cfg = cfg["indexing"]
     index = IVFCEIndex(
@@ -66,6 +68,7 @@ def evaluate_configuration(
     ground_truth: np.ndarray,
     k_values: Iterable[int],
 ) -> str:
+    """Evaluate a specific configuration sweep value and format metrics."""
     ivf_ce_index = build_index(cfg, database)
     query_cfg = cfg["query"]
     searcher = IVFCEExplorer(
@@ -84,6 +87,7 @@ def evaluate_configuration(
 
 
 def run_ablation(cfg: Dict[str, Any], parameter: str | None) -> None:
+    """Sweep one or more parameters and log the resulting metrics."""
     logger = setup_logger("experiments.ablation")
     dataset_cfg = cfg["dataset"]
     evaluation_cfg = cfg["evaluation"]
@@ -117,6 +121,7 @@ def run_ablation(cfg: Dict[str, Any], parameter: str | None) -> None:
 
 
 def main() -> None:
+    """Entry point for invoking the ablation sweep from the CLI."""
     args = parse_args()
     cfg = load_config(args.config)
     run_ablation(cfg, args.parameter)

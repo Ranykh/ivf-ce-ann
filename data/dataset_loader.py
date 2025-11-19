@@ -33,6 +33,7 @@ def load_sift1m(root: str | Path = "data") -> DatasetTuple:
 
 
 def _find_sift_files(root: Path) -> tuple[Path, Path, Path]:
+    """Locate SIFT1M base/query/ground-truth files under known directories."""
     candidates = [
         root / "raw" / "sift1m" / "sift",
         root / "sift1m",

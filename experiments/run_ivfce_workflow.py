@@ -21,16 +21,19 @@ class RunLogger:
     """Append-only JSON-lines logger."""
 
     def __init__(self, path: Path) -> None:
+        """Create a logger that appends records to the given file path."""
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def write(self, payload: dict) -> None:
+        """Append a serialized JSON payload as a single line."""
         with self.path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload))
             handle.write("\n")
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments for the IVF-CE workflow script."""
     parser = argparse.ArgumentParser(description="IVF-CE index workflow CLI.")
     parser.add_argument(
         "--config",
@@ -117,11 +120,13 @@ def parse_args() -> argparse.Namespace:
 
 
 def _default_output_name(dataset_name: str, preset_name: str) -> str:
+    """Generate a deterministic filename for a serialized index."""
     timestamp = datetime.utcnow().strftime("%Y%m%d")
     return f"ivfce_{dataset_name}_{preset_name.lower()}_{timestamp}.idx"
 
 
 def _build_index(args: argparse.Namespace) -> None:
+    """Build and persist an IVF-CE index according to the CLI preset."""
     preset = get_preset(args.preset)
     logger = setup_logger("experiments.ivfce_build")
     dataset_cfg = preset.dataset
@@ -189,10 +194,12 @@ def _build_index(args: argparse.Namespace) -> None:
 
 
 def _enumerate_n1_n2_pairs(b: int) -> List[Tuple[int, int]]:
+    """Yield feasible (n1, n2) splits for a total cluster budget."""
     return [(n1, b - n1) for n1 in range(1, b) if b - n1 > 0]
 
 
 def _run_search(args: argparse.Namespace) -> None:
+    """Execute IVF-CE sweeps for different budgets and log the outcomes."""
     logger = setup_logger("experiments.ivfce_search")
     index = IVFCEIndex.load(args.index_path)
     metadata = index.metadata
@@ -305,6 +312,7 @@ def _run_search(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
+    """Dispatch CLI commands for building indexes or running sweeps."""
     args = parse_args()
     if args.command == "build-index":
         _build_index(args)

@@ -13,6 +13,8 @@ from src.search.utils import deduplicate_keep_best
 
 
 class IVFCEExplorer(BaseSearcher):
+    """Two-stage IVF-CE searcher that explores cross-cluster links."""
+
     def __init__(
         self,
         index: IVFCEIndex,
@@ -21,6 +23,7 @@ class IVFCEExplorer(BaseSearcher):
         n2: int,
         k2: int,
     ) -> None:
+        """Configure the explorer with stage budgets and candidate counts."""
         if not index.is_built:
             raise ValueError("Index must be built before constructing a searcher.")
         super().__init__(index_dimension=index.dimension)
@@ -32,6 +35,7 @@ class IVFCEExplorer(BaseSearcher):
         self.k2 = k2
 
     def search(self, query: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
+        """Search using centroid routing followed by link-guided exploration."""
         self._validate_query(query)
         if k <= 0:
             raise ValueError("k must be positive")
@@ -71,12 +75,14 @@ class IVFCEExplorer(BaseSearcher):
         return final_ids[idx][ordering], final_dists[idx][ordering]
 
     def _stage0_routing(self, query: np.ndarray) -> np.ndarray:
+        """Route the query to the n1 nearest coarse centroids."""
         cluster_ids, _ = self.index.nearest_centroids(query, self.n1)
         return cluster_ids
 
     def _search_clusters(
         self, query: np.ndarray, clusters: Sequence[int]
     ) -> Tuple[np.ndarray, np.ndarray]:
+        """Search all vectors within the provided cluster ids."""
         if not isinstance(clusters, np.ndarray) and not isinstance(clusters, list):
             clusters = list(clusters)
         if len(clusters) == 0:
@@ -99,6 +105,7 @@ class IVFCEExplorer(BaseSearcher):
     def _select_candidates(
         self, ids: np.ndarray, distances: np.ndarray
     ) -> Sequence[Tuple[int, float]]:
+        """Choose the current best vector candidates to seed link expansion."""
         if ids.size == 0:
             return []
         limit = min(self.k2, ids.size)
@@ -113,6 +120,7 @@ class IVFCEExplorer(BaseSearcher):
         *,
         searched_clusters: Set[int],
     ) -> List[int]:
+        """Use cross-links from promising candidates to propose new clusters."""
         if self.n2 == 0 or not candidates:
             return []
 
@@ -135,6 +143,7 @@ class IVFCEExplorer(BaseSearcher):
     def _fallback_clusters(
         self, query: np.ndarray, excluded: Set[int], limit: int
     ) -> List[int]:
+        """Select additional nearest centroids if links supply too few clusters."""
         if limit <= 0:
             return []
 

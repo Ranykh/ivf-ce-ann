@@ -15,6 +15,7 @@ class BaseIndex(ABC):
     """Shared interface for all ANN indices in the project."""
 
     def __init__(self, dimension: int) -> None:
+        """Initialize bookkeeping shared by all index implementations."""
         self.dimension = dimension
         self.is_built = False
         self.build_stats: Optional[BuildStats] = None
@@ -38,6 +39,7 @@ class BaseIndex(ABC):
         raise NotImplementedError("load is not implemented for this index.")
 
     def _validate_input(self, vectors: np.ndarray) -> None:
+        """Verify that incoming vectors match the expected dimensionality."""
         if vectors.ndim != 2:
             raise ValueError("vectors must be a 2D array")
         if vectors.shape[1] != self.dimension:

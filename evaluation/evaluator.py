@@ -13,6 +13,7 @@ from evaluation.metrics import queries_per_second, recall_at_k
 
 @dataclass
 class EvaluationResult:
+    """Container for recall, latency, and throughput metrics."""
     recalls: Mapping[int, float]
     query_time_ms: float
     qps: float
@@ -21,7 +22,10 @@ class EvaluationResult:
 
 
 class Evaluator:
+    """Runs ANN searchers against queries and measures quality/performance."""
+
     def __init__(self, ground_truth: np.ndarray) -> None:
+        """Store the ground-truth neighbor matrix used for recall computation."""
         if ground_truth.ndim != 2:
             raise ValueError("ground_truth must be 2D")
         self.ground_truth = ground_truth.astype(np.int32, copy=False)
@@ -32,6 +36,7 @@ class Evaluator:
         queries: np.ndarray,
         k_values: Sequence[int],
     ) -> EvaluationResult:
+        """Evaluate a searcher over queries for the requested recall@k values."""
         if queries.ndim != 2:
             raise ValueError("queries must be 2D")
         if not k_values:

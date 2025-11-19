@@ -20,6 +20,7 @@ from src.utils import setup_logger
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse CLI flags for running the baseline comparison."""
     parser = argparse.ArgumentParser(description="Run IVF/IVF-CE baseline comparison.")
     parser.add_argument(
         "--config",
@@ -43,6 +44,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def build_ivf_index(cfg: Dict[str, Any], database: np.ndarray) -> IVFIndex:
+    """Build the plain IVF index specified by the configuration."""
     clustering_cfg = cfg["clustering"]
     index = IVFIndex(
         dimension=database.shape[1],
@@ -56,6 +58,7 @@ def build_ivf_index(cfg: Dict[str, Any], database: np.ndarray) -> IVFIndex:
 
 
 def build_ivf_ce_index(cfg: Dict[str, Any], database: np.ndarray) -> IVFCEIndex:
+    """Build an IVF-CE index using the provided configuration."""
     clustering_cfg = cfg["clustering"]
     indexing_cfg = cfg["indexing"]
     index = IVFCEIndex(
@@ -75,6 +78,7 @@ def build_ivf_ce_index(cfg: Dict[str, Any], database: np.ndarray) -> IVFCEIndex:
 def _compute_ground_truth_with_bruteforce(
     searcher: BruteForceSearch, queries: np.ndarray, k: int
 ) -> np.ndarray:
+    """Compute ground-truth neighbors for the queries via brute-force search."""
     if queries.shape[0] == 0:
         return np.empty((0, k), dtype=np.int32)
 
@@ -88,6 +92,7 @@ def _compute_ground_truth_with_bruteforce(
 
 
 def evaluate_methods(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
+    """Run all configured search methods and log their evaluation metrics."""
     logger = setup_logger("experiments")
     dataset_cfg = cfg["dataset"]
     evaluation_cfg = cfg["evaluation"]
@@ -185,6 +190,7 @@ def evaluate_methods(cfg: Dict[str, Any], args: argparse.Namespace) -> None:
 
 
 def main() -> None:
+    """Entry point for invoking the baseline comparison from the CLI."""
     args = parse_args()
     cfg = load_config(args.config)
     evaluate_methods(cfg, args)

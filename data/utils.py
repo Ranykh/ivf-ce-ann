@@ -13,6 +13,7 @@ PathLike = Union[str, os.PathLike]
 
 
 def _ensure_file(path: Path) -> Path:
+    """Validate that the given Path exists as a file."""
     if not path.is_file():
         raise FileNotFoundError(f"Dataset file not found: {path}")
     return path

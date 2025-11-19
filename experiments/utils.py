@@ -16,6 +16,7 @@ def select_queries(
     *,
     seed: int | None = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
+    """Sample a subset of queries and aligned ground truth entries."""
     limit = min(num_queries, queries.shape[0], ground_truth.shape[0])
     if seed is None or limit == queries.shape[0]:
         return queries[:limit], ground_truth[:limit]
@@ -26,6 +27,7 @@ def select_queries(
 
 
 def format_results(name: str, result: EvaluationResult) -> str:
+    """Format evaluation metrics into a compact human-readable string."""
     recall_parts = ", ".join(
         f"R@{k}={result.recalls[k]:.4f}" for k in sorted(result.recalls.keys())
     )

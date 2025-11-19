@@ -17,6 +17,7 @@ except ImportError as exc:  # pragma: no cover
 
 @dataclass
 class KMeansResult:
+    """K-means centroids and assignment matrix returned by training."""
     centroids: np.ndarray
     assignments: np.ndarray
 
@@ -54,6 +55,7 @@ def _train_faiss_kmeans(
     max_iter: int,
     seed: Optional[int],
 ) -> KMeansResult:
+    """Run Faiss KMeans and return centroids plus cluster assignments."""
     dim = vectors.shape[1]
     kmeans = faiss.Kmeans(
         d=dim,
