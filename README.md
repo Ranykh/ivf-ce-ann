@@ -1,7 +1,7 @@
 # IVF-CE Approximate Nearest Neighbor Search on SIFT1M
 
 **Course:** Data Analysis and Presentation – Final Project  
-**Team:** Tameer Milhem · Luay Marzok · Rany Khirbawi · Weaam Mulla
+**Team:** Tameer Milhem · Luay Marzok · Rani Herbawi · Weaam Mulla
 
 This project implements and analyzes an Inverted File Index with Cross-Cluster Exploration (IVF-CE) for Approximate Nearest Neighbor (ANN) search on the SIFT1M dataset.
 
